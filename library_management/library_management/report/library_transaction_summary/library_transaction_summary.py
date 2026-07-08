@@ -35,6 +35,13 @@ def execute(filters=None):
             "options": "Library Transaction",
             "width": 180,
         },
+        {
+            "label": "person",
+            "fieldname": "created_from",
+            "fieldtype": "Link",
+            "options": "Person",
+            "width": 150,
+        },
     ]
 
     data = frappe.db.sql("""
@@ -42,11 +49,14 @@ def execute(filters=None):
             lt.library_member,
             t.article,
             t.amount,
-			lt.date,
+            lt.date,
+            lm.created_from,
             lt.name
         FROM `tabLibrary Transaction` lt
         JOIN `tabTransaction` t
             ON t.parent = lt.name
+        JOIN `tabLibrary Member` lm
+            ON lm.name = lt.library_member
     """, as_dict=True)
 
     return columns, data

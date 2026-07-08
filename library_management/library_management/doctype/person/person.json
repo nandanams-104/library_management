@@ -1,33 +1,31 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:full_name",
- "creation": "2026-07-02 17:18:02.904613",
+ "autoname": ".#####",
+ "creation": "2026-07-08 12:41:22.966951",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "person_details_section",
   "first_name",
   "last_name",
   "full_name",
-  "column_break_hblt",
-  "email_address",
-  "phone",
-  "created_from"
+  "column_break_wjwz",
+  "age",
+  "email"
  ],
  "fields": [
   {
-   "fieldname": "column_break_hblt",
-   "fieldtype": "Column Break"
+   "fieldname": "person_details_section",
+   "fieldtype": "Section Break",
+   "label": "Person Details"
   },
   {
-   "fieldname": "email_address",
+   "fieldname": "first_name",
    "fieldtype": "Data",
-   "label": "Email Address"
-  },
-  {
-   "fieldname": "phone",
-   "fieldtype": "Phone",
-   "label": "Phone"
+   "in_list_view": 1,
+   "label": "First Name",
+   "reqd": 1
   },
   {
    "fieldname": "last_name",
@@ -38,29 +36,31 @@
    "fieldname": "full_name",
    "fieldtype": "Data",
    "label": "Full Name",
-   "unique": 1
+   "read_only": 1
   },
   {
-   "fieldname": "first_name",
+   "fieldname": "column_break_wjwz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "age",
+   "fieldtype": "Int",
+   "label": "Age"
+  },
+  {
+   "fieldname": "email",
    "fieldtype": "Data",
-   "label": "First name",
-   "unique": 1
-  },
-  {
-   "fieldname": "created_from",
-   "fieldtype": "Link",
-   "label": "Created From",
-   "options": "Person"
+   "label": "Email"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-08 16:35:07.334900",
+ "modified": "2026-07-08 17:47:25.495191",
  "modified_by": "Administrator",
  "module": "Library Management",
- "name": "Library Member",
- "naming_rule": "By fieldname",
+ "name": "Person",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
