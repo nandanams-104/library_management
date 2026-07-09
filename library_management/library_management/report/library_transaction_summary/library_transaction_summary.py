@@ -1,6 +1,7 @@
 import frappe
 
 def execute(filters=None):
+
     columns = [
         {
             "label": "Library Member",
@@ -22,7 +23,7 @@ def execute(filters=None):
             "fieldtype": "Currency",
             "width": 120,
         },
-	    {
+        {
             "label": "Date",
             "fieldname": "date",
             "fieldtype": "Date",
@@ -36,7 +37,7 @@ def execute(filters=None):
             "width": 180,
         },
         {
-            "label": "person",
+            "label": "Person",
             "fieldname": "created_from",
             "fieldtype": "Link",
             "options": "Person",
@@ -44,7 +45,14 @@ def execute(filters=None):
         },
     ]
 
-    data = frappe.db.sql("""
+    conditions = ""
+    values = {}
+
+    if filters and filters.get("library_member"):
+        conditions += " AND lt.library_member = %(library_member)s"
+        values["library_member"] = filters.get("library_member")
+
+    data = frappe.db.sql(f"""
         SELECT
             lt.library_member,
             t.article,
@@ -57,6 +65,8 @@ def execute(filters=None):
             ON t.parent = lt.name
         JOIN `tabLibrary Member` lm
             ON lm.name = lt.library_member
-    """, as_dict=True)
+        WHERE 1=1
+        {conditions}
+    """, values, as_dict=True)
 
     return columns, data
