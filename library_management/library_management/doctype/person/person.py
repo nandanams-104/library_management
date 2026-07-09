@@ -4,24 +4,6 @@ import frappe
 
 class Person(Document):
 
-    def before_insert(self):
-        frappe.msgprint("before_insert called")
-
-    def after_insert(self):
-        doc = frappe.get_doc({
-            'doctype': 'Library Member',
-            'first_name': self.first_name,
-            'last_name': self.last_name,
-            'created_from':self.name,
-            'full_name': self.full_name
-        })
-        doc.insert()
-        doc.name
-
-
-    def before_validate(self):
-        frappe.msgprint("before_validate called")
-
     def validate(self):
         if self.age <= 18:
             frappe.throw("Person's age must be at least 18")
@@ -32,26 +14,70 @@ class Person(Document):
     def before_save(self):
         self.full_name = f"{self.first_name} {self.last_name or ''}"
 
-    def on_update(self):
-        frappe.msgprint("Record Updated")
+        # get_all
+        persons = frappe.db.get_all(
+            "Person",
+            fields=["name", "first_name", "email"]
+        )
 
-    def before_submit(self):
-        frappe.msgprint("before_submit called")
+        frappe.msgprint(f"All Persons: {persons}")
 
-    def on_submit(self):
-        frappe.msgprint("Person Submitted")
+    def after_insert(self):
 
-    def before_cancel(self):
-        frappe.msgprint("before_cancel called")
+        doc = frappe.get_doc({
+            "doctype": "Library Member",
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "created_from": self.name,
+            "full_name": self.full_name
+        })
+        doc.insert()
 
-    def on_cancel(self):
-        frappe.msgprint("Person Cancelled")
+        frappe.msgprint(f"Library Member Created: {doc.name}")
+
+        # get_list
+        members = frappe.db.get_list(
+            "Library Member",
+            filters={"created_from": self.name},
+            fields=["name"]
+        )
+
+        frappe.msgprint(f"Library Members: {members}")
+
+        # get_value
+        member_first_name = frappe.db.get_value(
+            "Library Member",
+            {"created_from": self.name},
+            "first_name"
+        )
+
+        frappe.msgprint(f"Library Member First Name: {member_first_name}")
+
+        # set_value
+        frappe.db.set_value(
+            "Library Member",
+            doc.name,
+            "first_name",
+            self.first_name.upper()
+        )
+
+        updated_name = frappe.db.get_value(
+            "Library Member",
+            doc.name,
+            "first_name"
+        )
+
+        frappe.msgprint(f"Updated Library Member First Name: {updated_name}")
 
     def on_trash(self):
-        frappe.msgprint("Person Deleted")
+        
+        members = frappe.get_all(
+            "Library Member",
+            filters={"created_from": self.name},
+            fields=["name"]
+        )
 
-    def after_rename(self, old_name, new_name, merge=False):
-        frappe.msgprint(f"Renamed from {old_name} to {new_name}")
+        for member in members:
+            frappe.delete_doc("Library Member", member["name"])
 
-    def onload(self):
-        frappe.msgprint("Document Loaded")
+        frappe.msgprint("Related Library Members Deleted Successfully")

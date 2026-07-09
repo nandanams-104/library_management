@@ -45,28 +45,41 @@ def execute(filters=None):
         },
     ]
 
-    conditions = ""
-    values = {}
+    filters_dict = {}
 
     if filters and filters.get("library_member"):
-        conditions += " AND lt.library_member = %(library_member)s"
-        values["library_member"] = filters.get("library_member")
+        filters_dict["library_member"] = filters.get("library_member")
 
-    data = frappe.db.sql(f"""
-        SELECT
-            lt.library_member,
-            t.article,
-            t.amount,
-            lt.date,
-            lm.created_from,
-            lt.name
-        FROM `tabLibrary Transaction` lt
-        JOIN `tabTransaction` t
-            ON t.parent = lt.name
-        JOIN `tabLibrary Member` lm
-            ON lm.name = lt.library_member
-        WHERE 1=1
-        {conditions}
-    """, values, as_dict=True)
+    transactions = frappe.get_all(
+        "Library Transaction",
+        filters=filters_dict,
+        fields=["name", "library_member", "date"]
+    )
+
+    data = []
+
+    for transaction in transactions:
+
+        person = frappe.db.get_value(
+            "Library Member",
+            transaction.library_member,
+            "created_from"
+        )
+
+        articles = frappe.get_all(
+            "Transaction",
+            filters={"parent": transaction.name},
+            fields=["article", "amount"]
+        )
+
+        for article in articles:
+            data.append({
+                "library_member": transaction.library_member,
+                "article": article.article,
+                "amount": article.amount,
+                "date": transaction.date,
+                "name": transaction.name,
+                "created_from": person,
+            })
 
     return columns, data
